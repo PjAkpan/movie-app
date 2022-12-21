@@ -1,30 +1,45 @@
-import { createStore, combineReducers, applyMiddleware } from 'redux';
-import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import logger from 'redux-logger';
-import loginReducer from './login';
-import userReducer from './user';
-import favoritesReducer from './favorites';
-import seenlistReducer from './seenlist';
-import themeReducer from './theme';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import Nav from './layouts/Nav';
+import Login from './components/Login';
+import Home from './components/Home';
+import Search from './components/Search';
+import Error from './components/Error';
+import Profile from './components/Profile';
+import Detail from './components/Detail';
+import SortFilter from './components/SortFilter';
+import About from './components/About';
 
-const rootReducer = combineReducers({
-  login: loginReducer,
-  user: userReducer,
-  seenlist: seenlistReducer,
-  favorites: favoritesReducer,
-  theme: themeReducer,
-});
+function App() {
 
-const persistConfig = {
-  key: 'root',
-  storage,
-  whitelist: ['login', 'user', 'seenlist', 'favorites', 'theme'],
-};
+  const theme = useSelector((state) => state.theme);
+  const login = useSelector((state) => state.login);
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+  return (
+    <>
+      <div className={` ${theme ? "bg-dark" : ""} `}>
+        <Nav />
+        {
+          login ?
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/detail/:id" element={<Detail />} />
+              <Route path="/sort-filter/:category" element={<SortFilter />} />
+              <Route path="*" element={<Error />} />
+            </Routes>
+            :
+            <Routes>
+              <Route path="/" element={<Login />} />
+              <Route path="*" element={<Error />} />
+            </Routes>
+        }
+      </div>
+    </>
+  );
+}
 
-const store = createStore(persistedReducer, applyMiddleware(logger));
-
-export const persistor = persistStore(store);
-export default store;
+export default App;
